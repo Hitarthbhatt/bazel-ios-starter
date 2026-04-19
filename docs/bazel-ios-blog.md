@@ -105,9 +105,9 @@ Which brings us to the most important question: how does Bazel actually know wha
 Create a file called `MODULE.bazel` at your project root:
 
 ```python
-bazel_dep(name = "rules_apple", version = "3.15.0", repo_name = "build_bazel_rules_apple")
-bazel_dep(name = "rules_swift", version = "2.2.0", repo_name = "build_bazel_rules_swift")
-bazel_dep(name = "rules_xcodeproj", version = "2.9.2")
+bazel_dep(name = "rules_apple", version = "4.1.1", repo_name = "build_bazel_rules_apple")
+bazel_dep(name = "rules_swift", version = "2.3.1", repo_name = "build_bazel_rules_swift")
+bazel_dep(name = "rules_xcodeproj", version = "2.10.0")
 ```
 
 Think of `MODULE.bazel` as your `Package.swift` — except it manages the *build system's* dependencies, not your app's. It tells Bazel which external rule sets to download.
