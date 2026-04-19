@@ -361,7 +361,7 @@ You just built an iOS app with Bazel from scratch. Here's where to go from here:
 - **Remote caching** — Set up a shared cache with Buildbuddy or Google Cloud Storage for blazing fast CI
 - **Explore the Bazel ecosystem** — `rules_apple` supports watchOS, tvOS, macOS targets too
 
-The project from this post is available on GitHub — clone it, explore the files, and use it as a starting point.
+The project from this post is available on GitHub — clone it, explore the files, and use it as a starting point: **[github.com/Hitarthbhatt/bazel-ios-starter](https://github.com/Hitarthbhatt/bazel-ios-starter)**
 
 I built this over a weekend to understand Bazel. The first build failed five times. The sixth worked, and I immediately understood why teams adopt this. If I can get here, you can too.
 
