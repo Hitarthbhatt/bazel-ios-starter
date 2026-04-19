@@ -1,12 +1,14 @@
 # From Xcode Slowness to Bazel Superpowers: A Beginner's Guide to Bazel for iOS
 
-*I built a small iOS project over a weekend just to understand Bazel. This is everything I learned — so you don't have to spend your weekend doing the same.*
+*Google uses it. Uber uses it. Airbnb uses it. Here's how you can use it too — from scratch, in under an hour.*
 
 ---
 
 ## Why Bazel? (The Pain First)
 
 Picture this: you change one line in a utility file. You hit `Cmd+B`. Xcode decides to recompile half your project. Your MacBook fan spins up like it's about to take off. You go make coffee. You come back. It's still building.
+
+<!-- GIF: Search "waiting forever" or "this is fine dog fire" on Hashnode's GIF picker -->
 
 Sound familiar?
 
@@ -26,7 +28,9 @@ The key ideas behind Bazel:
 - **Language agnostic** — One build system for Swift, Kotlin, C++, Go, Python. Useful when you're scaling to a monorepo.
 - **Xcode compatible** — Thanks to `rules_xcodeproj`, you still get a full `.xcodeproj` to work with. You don't have to give up your IDE.
 
-Bazel has a reputation for being complex. That reputation isn't wrong — but the basics are simpler than you'd think. Let's build something.
+Bazel has a reputation for being complex. That reputation isn't wrong — but the basics are simpler than you'd think.
+
+> **Up next:** We'll look at the exact files you need to build a real iOS app with Bazel. Spoiler: it's just 5 files. Yes, really.
 
 ---
 
@@ -48,7 +52,7 @@ MyApp/
     └── Info.plist         # Standard iOS app info
 ```
 
-No `Podfile`. No `Package.swift`. No `Cartfile`. Just five files and a SwiftUI view. Let's go.
+No `Podfile`. No `Package.swift`. No `Cartfile`. Just five files and a SwiftUI view.
 
 ### Prerequisites
 
@@ -63,6 +67,8 @@ bazel --version
 ```
 
 You'll also need Xcode installed with a valid simulator. That's it.
+
+> **Up next:** The actual SwiftUI app — then we'll explain how Bazel knows to build it.
 
 ---
 
@@ -86,7 +92,11 @@ struct BazelApp: App {
 }
 ```
 
-A standard SwiftUI entry point. Nothing special here — and that's the point. Bazel doesn't care what your Swift code looks like. It just needs to know how to build it.
+A standard SwiftUI entry point. Nothing special here — and that's the point. Bazel doesn't care what your Swift code looks like. It just needs to know *how* to build it.
+
+Which brings us to the most important question: how does Bazel actually know what to do?
+
+> **Up next:** `MODULE.bazel` — the file that tells Bazel about the outside world.
 
 ---
 
@@ -100,7 +110,7 @@ bazel_dep(name = "rules_swift", version = "2.2.0", repo_name = "build_bazel_rule
 bazel_dep(name = "rules_xcodeproj", version = "2.9.2")
 ```
 
-Think of `MODULE.bazel` as your `Package.swift` — except it manages the build system's dependencies, not your app's. It tells Bazel which external rule sets to download.
+Think of `MODULE.bazel` as your `Package.swift` — except it manages the *build system's* dependencies, not your app's. It tells Bazel which external rule sets to download.
 
 Here's what each line does:
 
@@ -125,6 +135,10 @@ One line. That's it.
 This flag tells Bazel to use **Bzlmod** — its modern, module-based dependency system. `MODULE.bazel` only works when Bzlmod is enabled. Without this flag, Bazel falls back to the older `WORKSPACE` approach and ignores your `MODULE.bazel` entirely.
 
 > *You've seen `Podfile`s longer than this just to install Alamofire.*
+
+<!-- GIF: Search "one does not simply" or "that was easy" on Hashnode's GIF picker -->
+
+> **Up next:** `BUILD.bazel` — the heart of Bazel where you actually define your app target. This is where the magic (and the confusion) happens. Don't worry, we'll go line by line.
 
 ---
 
@@ -184,7 +198,7 @@ swift_library(
 )
 ```
 
-This compiles all your Swift files into a library named `Source`. 
+This compiles all your Swift files into a library named `Source`.
 
 - `glob(["Sources/**/*.swift"])` — finds all `.swift` files recursively. Same as `**/*.swift` in your terminal.
 - `visibility = ["//visibility:public"]` — allows other targets (like your app) to depend on this library.
@@ -222,6 +236,8 @@ This generates your `.xcodeproj` file so Xcode stays happy. Best of both worlds.
 
 > *Your entire app configuration is 25 lines. Your `project.pbxproj` has entered the chat... and it's crying.*
 
+<!-- GIF: Search "crying laughing" or "ugly cry" on Hashnode's GIF picker -->
+
 ### How Bazel Sees Your Project
 
 Bazel models your build as a **dependency graph** — each target is a node, and `deps` are edges. Here's what your project looks like:
@@ -235,6 +251,8 @@ graph TD
 ```
 
 This graph is why Bazel is fast. When you change `BazelApp.swift`, Bazel walks the graph and only rebuilds `Source` and `NewApp`. Everything else is untouched.
+
+> **Up next:** A tiny but important file — and then the thing everyone really wants to know: *why exactly is Bazel faster?* The caching system is honestly clever. Let's visualise it.
 
 ---
 
@@ -267,13 +285,17 @@ flowchart TD
     C -->|Yes — nothing changed| D[Skip rebuild entirely\nUse cached output]
     C -->|No — inputs changed| E[Rebuild the target]
     E --> F[Store new output in cache]
-    F --> G[Build complete]
+    F --> G[Build complete ⚡]
     D --> G
 ```
 
 The cache works **locally** (your machine) and can be extended to a **remote cache** shared across your team and CI. When your teammate builds the same commit you already built, they get your cached outputs. Zero rebuild.
 
 This is the real superpower — not just fast local builds, but a shared build cache that makes CI fast too.
+
+<!-- GIF: Search "mind blown" or "galaxy brain" on Hashnode's GIF picker -->
+
+> **Up next:** All files are ready. Time to actually run the build. Three commands and you'll have a working iOS app built entirely by Bazel — opening in Xcode.
 
 ---
 
@@ -295,7 +317,7 @@ This runs the `xcodeproj` target, which generates `MyApp.xcodeproj`. The `//` me
 bazel build //:NewApp
 ```
 
-First run will be slow — Bazel downloads dependencies and builds from scratch. Subsequent builds will be dramatically faster thanks to caching.
+First run will be slow — Bazel downloads dependencies and builds from scratch. Grab that coffee you didn't get to finish earlier. Subsequent builds will be dramatically faster thanks to caching.
 
 Expected output:
 ```
@@ -314,6 +336,8 @@ open MyApp.xcodeproj
 
 Select a simulator, hit `Cmd+R`. Your app runs.
 
+<!-- GIF: Search "success kid" or "nailed it" on Hashnode's GIF picker -->
+
 ### Understanding Bazel Target Syntax
 
 The `//` and `:` syntax trips up every beginner. Here's the rule:
@@ -326,6 +350,8 @@ The `//` and `:` syntax trips up every beginner. Here's the rule:
 | `:Source` | Target `Source` in the *current* BUILD file |
 
 > *When it builds successfully on the first try, you will feel like an absolute wizard. When it doesn't — welcome to the club. We have snacks and Stack Overflow tabs.*
+
+> **Up next:** The question you've been asking yourself this whole time — *should I actually use this on my real project?* Honest answer ahead.
 
 ---
 
@@ -348,6 +374,8 @@ Honest answer: it depends. Here's a clear breakdown:
 
 > *Bazel is like a standing desk — amazing long-term investment, great for your health, but the first week you'll wonder why you did this to yourself. Stick with it.*
 
+<!-- GIF: Search "long term investment" or "worth it" on Hashnode's GIF picker -->
+
 The sweet spot for Bazel is mid-to-large teams with growing codebases. For solo developers and small teams, the overhead may not be worth it yet.
 
 ---
@@ -356,14 +384,16 @@ The sweet spot for Bazel is mid-to-large teams with growing codebases. For solo 
 
 You just built an iOS app with Bazel from scratch. Here's where to go from here:
 
-- **Add third-party dependencies** — Integrate Swift packages or CocoaPods via `rules_swift_package_manager`
+- **Add third-party dependencies** — Integrate Swift packages via `rules_swift_package_manager`
 - **Multi-module setup** — Split your app into multiple `swift_library` targets for faster incremental builds
 - **Remote caching** — Set up a shared cache with Buildbuddy or Google Cloud Storage for blazing fast CI
-- **Explore the Bazel ecosystem** — `rules_apple` supports watchOS, tvOS, macOS targets too
+- **Explore the Bazel ecosystem** — `rules_apple` supports watchOS, tvOS, and macOS targets too
 
-The project from this post is available on GitHub — clone it, explore the files, and use it as a starting point: **[github.com/Hitarthbhatt/bazel-ios-starter](https://github.com/Hitarthbhatt/bazel-ios-starter)**
+The full project from this post is on GitHub — clone it, explore the files, and use it as your starting point:
 
-I built this over a weekend to understand Bazel. The first build failed five times. The sixth worked, and I immediately understood why teams adopt this. If I can get here, you can too.
+**[github.com/Hitarthbhatt/bazel-ios-starter](https://github.com/Hitarthbhatt/bazel-ios-starter)**
+
+I built this to understand Bazel properly. The first build failed five times. The sixth worked, and I immediately understood why teams adopt this. If I can get here, you can too.
 
 ---
 
