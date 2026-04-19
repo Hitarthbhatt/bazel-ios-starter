@@ -1,0 +1,29 @@
+load("@build_bazel_rules_apple//apple:ios.bzl", "ios_application")
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+load("@rules_xcodeproj//xcodeproj:defs.bzl", "xcodeproj", "top_level_target")
+
+swift_library(
+    name = "Source",
+    srcs = glob([
+        "Sources/**/*.swift"
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+ios_application(
+    name = "NewApp",
+    bundle_id = "com.ganesha.ios",
+    families = ["iphone"],
+    infoplists = ["//Resources:Info.plist"],
+    minimum_os_version = "17.0",
+    deps = [":Source"],
+    visibility = ["//visibility:public"],
+)
+
+xcodeproj(
+    name = "xcodeproj",
+    project_name = "Ganesha",
+    top_level_targets = [
+        top_level_target(":NewApp", target_environments = ["simulator"]),
+    ],
+)
