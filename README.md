@@ -33,7 +33,12 @@ bazel run //:xcodeproj
 bazel build //:NewApp
 ```
 
-**Open in Xcode:**
+**Run directly in simulator (no Xcode needed):**
+```bash
+bazel run //:NewApp
+```
+
+**Or open in Xcode:**
 ```bash
 open Ganesha.xcodeproj
 ```
@@ -57,6 +62,6 @@ Then select a simulator and hit `Cmd+R`.
 
 | Rule | Version | Purpose |
 |---|---|---|
-| rules_apple | 3.15.0 | iOS build rules |
-| rules_swift | 2.2.0 | Swift compilation |
-| rules_xcodeproj | 2.9.2 | Xcode project generation |
+| rules_apple | 4.1.1 | iOS build rules (Bazel 8 compatible) |
+| rules_swift | 2.3.1 | Swift compilation |
+| rules_xcodeproj | 2.10.0 | Xcode project generation |
