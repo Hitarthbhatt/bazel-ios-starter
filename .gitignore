@@ -1,0 +1,12 @@
+# Bazel
+bazel-*
+
+# macOS
+.DS_Store
+
+# Claude Code
+.claude/
+
+# Xcode user data
+*.xcuserstate
+xcuserdata/
